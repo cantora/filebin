@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define VERSION  "1.0.1"
 
@@ -61,14 +62,34 @@ void process_options(int argc, char *argv[])
         }
 }
 
+const long long MB_SIZE = 1 << 20;
+const int PROGRESS_INTERVAL = 1;
+
+void progress() {
+    float mbs;
+
+    mbs = n/((float) MB_SIZE);
+
+    printf("\r%.1f MBs", mbs);
+    fflush(stdout);
+}
+
 void process_fp(FILE *fp)
 {
+    time_t t, tmp;
     int c;
 
+    t = time(NULL);
     while ((c = fgetc(fp)) != EOF) {
         bin[c]++;
         n++;
+        tmp = time(NULL);
+        if((tmp - t) >= PROGRESS_INTERVAL) {
+          t = tmp;
+          progress();
+        }
     }
+    puts("\n");
 }
 
 void process_file(char *fname)
